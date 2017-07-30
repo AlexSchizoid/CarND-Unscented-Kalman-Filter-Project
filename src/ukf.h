@@ -63,10 +63,18 @@ public:
 
   ///* Augmented state dimension
   int n_aug_;
+  
+  ///* Number of sigma points
+  int n_sig_;
 
   ///* Sigma point spreading parameter
   double lambda_;
-
+  
+  //measurement covariance matrix - laser
+  MatrixXd R_laser_;
+  
+  //measurement covariance matrix - radar
+  MatrixXd R_radar_;
 
   /**
    * Constructor
@@ -102,6 +110,8 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+  
+  void UpdateUKFCommon(MeasurementPackage meas_package, const Eigen::MatrixXd &Zsig, unsigned int n_z);
 };
 
 #endif /* UKF_H */

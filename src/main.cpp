@@ -5,6 +5,8 @@
 #include "ukf.h"
 #include "tools.h"
 
+//#define use_ipv4
+
 using namespace std;
 
 // for convenience
@@ -174,8 +176,14 @@ int main()
     std::cout << "Disconnected" << std::endl;
   });
 
+  
   int port = 4567;
-  if (h.listen(port))
+  std::cout << "ALEX !!! Listening to port " << port << std::endl;
+  #ifdef use_ipv4  
+  if (h.listen("0.0.0.0", port)) 
+  #else  
+  if (h.listen(port)) 
+  #endif
   {
     std::cout << "Listening to port " << port << std::endl;
   }
