@@ -65,7 +65,7 @@ public:
   int n_aug_;
   
   ///* Number of sigma points
-  int n_sig_;
+  int n_sigma_;
 
   ///* Sigma point spreading parameter
   double lambda_;

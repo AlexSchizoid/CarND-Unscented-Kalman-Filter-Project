@@ -52,7 +52,7 @@ UKF::UKF() {
   n_aug_ = 7;
   
   //set sigma dimension
-  n_sig_ = 2 * n_aug_ + 1;
+  n_sigma_ = 2 * n_aug_ + 1;
   
   //define spreading parameter
   lambda_ = 3 - n_aug_;
@@ -74,14 +74,14 @@ UKF::UKF() {
            0, 0, 0, 1, 0,
 	   0, 0, 0, 0, 1;
 			  
-  weights_ = VectorXd(n_sig_);
+  weights_ = VectorXd(n_sigma_);
   weights_(0) = lambda_ / (lambda_ + n_aug_);
   for (int i = 1; i < weights_.size(); i++) 
   {
         weights_(i) = 0.5 / (n_aug_ + lambda_);
   }
 
-  Xsig_pred_ = MatrixXd(n_x_, n_sig_); 
+  Xsig_pred_ = MatrixXd(n_x_, n_sigma_); 
 }
 
 UKF::~UKF() {}
@@ -179,7 +179,7 @@ void UKF::Prediction(double delta_t) {
   MatrixXd P_aug = MatrixXd(7, 7);
 
   //create sigma point matrix
-  MatrixXd Xsig_aug = MatrixXd(n_aug_, n_sig_);
+  MatrixXd Xsig_aug = MatrixXd(n_aug_, n_sigma_);
   
   //create augmented mean state
   x_aug.head(5) = x_;
@@ -205,7 +205,7 @@ void UKF::Prediction(double delta_t) {
   }
   
   //predict sigma points
-  for (int i = 0; i< n_sig_; ++i)
+  for (int i = 0; i< n_sigma_; ++i)
   {
     //extract values for better readability
     double p_x = Xsig_aug(0,i);
@@ -255,7 +255,7 @@ void UKF::Prediction(double delta_t) {
 
   //predicted state covariance matrix
   P_.fill(0.0);
-  for (int i = 0; i < n_sig_; ++i) {  //iterate over sigma points
+  for (int i = 0; i < n_sigma_; ++i) {  //iterate over sigma points
 
     // state difference
     VectorXd x_diff = Xsig_pred_.col(i) - x_;
@@ -285,8 +285,8 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   
   //create matrix for sigma points in measurement space
   //only need first two predictions
-  //don't need to modify them in any way so just take a block of size n_z, n_sig_ starting from 0,0
-  MatrixXd Zsig = Xsig_pred_.block(0, 0, n_z, n_sig_);
+  //don't need to modify them in any way so just take a block of size n_z, n_sigma_ starting from 0,0
+  MatrixXd Zsig = Xsig_pred_.block(0, 0, n_z, n_sigma_);
   
   UpdateUKFCommon(meas_package, Zsig, n_z);
 }
@@ -309,10 +309,10 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   unsigned int n_z = 3;
   
   //create matrix for sigma points in measurement space
-  MatrixXd Zsig = MatrixXd(n_z, n_sig_);
+  MatrixXd Zsig = MatrixXd(n_z, n_sigma_);
   
   //transform sigma points into measurement space
-  for (int i = 0; i < n_sig_; ++i) 
+  for (int i = 0; i < n_sigma_; ++i) 
   {  //2n+1 simga points
 
     // extract values for better readibility
@@ -342,7 +342,7 @@ void UKF::UpdateUKFCommon(MeasurementPackage meas_package, const Eigen::MatrixXd
   //measurement covariance matrix S
   MatrixXd S = MatrixXd(n_z,n_z);
   S.fill(0.0);
-  for (int i = 0; i < n_sig_; ++i) 
+  for (int i = 0; i < n_sigma_; ++i) 
   {  //2n+1 simga points
     //residual
     VectorXd z_diff = Zsig.col(i) - z_pred;
@@ -373,7 +373,7 @@ void UKF::UpdateUKFCommon(MeasurementPackage meas_package, const Eigen::MatrixXd
   
   //calculate cross correlation matrix
   Tc.fill(0.0);
-  for (int i = 0; i < n_sig_; ++i) 
+  for (int i = 0; i < n_sigma_; ++i) 
   {  //2n+1 simga points
     //residual
     VectorXd z_diff = Zsig.col(i) - z_pred;
