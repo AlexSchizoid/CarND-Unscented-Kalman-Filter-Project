@@ -67,6 +67,8 @@ int main()
     	  // reads first element from the current line
     	  string sensor_type;
     	  iss >> sensor_type;
+	  bool processMeasurement = false;
+	  processMeasurement = ((sensor_type.compare("L") == 0 && ukf.use_laser_ == true) || (sensor_type.compare("R") == 0 && ukf.use_radar_ == true));
 
     	  if (sensor_type.compare("L") == 0) {
       	  		meas_package.sensor_type_ = MeasurementPackage::LASER;
@@ -105,10 +107,13 @@ int main()
     	  gt_values(1) = y_gt; 
     	  gt_values(2) = vx_gt;
     	  gt_values(3) = vy_gt;
-    	  ground_truth.push_back(gt_values);
+	  if (processMeasurement)
+	  {
+    	  	ground_truth.push_back(gt_values);
           
-          //Call ProcessMeasurment(meas_package) for Kalman filter
-    	  ukf.ProcessMeasurement(meas_package);    	  
+          	//Call ProcessMeasurment(meas_package) for Kalman filter
+    	  	ukf.ProcessMeasurement(meas_package);    	  
+	  }
 
     	  //Push the current estimated x,y positon from the Kalman filter's state vector
 
@@ -126,8 +131,11 @@ int main()
     	  estimate(1) = p_y;
     	  estimate(2) = v1;
     	  estimate(3) = v2;
-    	  
-    	  estimations.push_back(estimate);
+    	 
+	  if (processMeasurement)
+	  { 
+    	  	estimations.push_back(estimate);
+	  }
 
     	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 
@@ -178,7 +186,6 @@ int main()
 
   
   int port = 4567;
-  std::cout << "ALEX !!! Listening to port " << port << std::endl;
   #ifdef use_ipv4  
   if (h.listen("0.0.0.0", port)) 
   #else  
